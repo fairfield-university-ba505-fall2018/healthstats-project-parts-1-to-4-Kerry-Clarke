@@ -1,0 +1,192 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Health Stats Part 3: Numpy Structured Arrays"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<!--- Paste in your explanation from part 1.  --->\n",
+    "EDIT THIS MARKDOWN CELL"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Source Data "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<!--- Paste in your column definition table from part 2. --->\n",
+    "EDIT THIS MARKDOWN CELL"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Data Import"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "# Goal: Extract the data from the file\n",
+    "rows = np.genfromtxt('w2h_data.csv',delimiter=',',names=True,dtype=[int,float,float,'U1'])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Calculations"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Goal: For each row of data calculate and store the w2h_ratio and shape.\n",
+    "\n",
+    "# calculate the waist to hips ratios\n",
+    "w2h_ratios = rows['Waist']/rows['Hip']\n",
+    "\n",
+    "# determine who is male (True) or female (False)\n",
+    "males = (rows['Gender']=='M')\n",
+    "\n",
+    "# males with w2h ration > 0.9 are apple shaped\n",
+    "male_apples = np.logical_and((w2h_ratios>0.9),males)\n",
+    "\n",
+    "# females with w2h ratio > 0.8 are apple shaped\n",
+    "female_apples = np.logical_and((w2h_ratios>0.8),np.logical_not(males))\n",
+    "\n",
+    "# combines the male_apples and female_apples\n",
+    "apples=np.logical_or(male_apples,female_apples)\n",
+    "\n",
+    "# works like an if then else statement\n",
+    "shapes=np.where(apples,'Apple','Pear')\n",
+    "\n",
+    "# The code below creates a new results array \n",
+    "\n",
+    "# add the two new columns to the dtype descriptor\n",
+    "dt = np.dtype(rows.dtype.descr + [('W2H Ratio',float),('Shape','U5')])\n",
+    "\n",
+    "# create a new results array with the same number of rows and the new dtype\n",
+    "results = np.zeros(rows.shape,dtype=dt)\n",
+    "\n",
+    "# copy over the rows data\n",
+    "for c in rows.dtype.names:\n",
+    "    results[c]=rows[c]\n",
+    "    \n",
+    "# add the two new columns\n",
+    "results['W2H Ratio']=w2h_ratios\n",
+    "results['Shape']=shapes\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Output"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table><tr><th>ID</th><th>Waist</th><th>Hip</th><th>Gender</th><th>W2H Ratio</th><th>Shape</th></tr><tr><td>1</td><td>30.0</td><td>32.0</td><td>M</td><td>0.9375</td><td>Apple</td></tr><tr><td>2</td><td>32.0</td><td>37.0</td><td>M</td><td>0.8648648648648649</td><td>Pear</td></tr><tr><td>3</td><td>30.0</td><td>36.0</td><td>M</td><td>0.8333333333333334</td><td>Pear</td></tr><tr><td>4</td><td>33.0</td><td>39.0</td><td>M</td><td>0.8461538461538461</td><td>Pear</td></tr><tr><td>5</td><td>29.0</td><td>33.0</td><td>M</td><td>0.8787878787878788</td><td>Pear</td></tr><tr><td>6</td><td>32.0</td><td>38.0</td><td>M</td><td>0.8421052631578947</td><td>Pear</td></tr><tr><td>7</td><td>33.0</td><td>42.0</td><td>M</td><td>0.7857142857142857</td><td>Pear</td></tr><tr><td>8</td><td>30.0</td><td>40.0</td><td>M</td><td>0.75</td><td>Pear</td></tr><tr><td>9</td><td>30.0</td><td>37.0</td><td>M</td><td>0.8108108108108109</td><td>Pear</td></tr><tr><td>10</td><td>32.0</td><td>39.0</td><td>M</td><td>0.8205128205128205</td><td>Pear</td></tr><tr><td>11</td><td>24.0</td><td>35.0</td><td>F</td><td>0.6857142857142857</td><td>Pear</td></tr><tr><td>12</td><td>25.0</td><td>37.0</td><td>F</td><td>0.6756756756756757</td><td>Pear</td></tr><tr><td>13</td><td>24.0</td><td>37.0</td><td>F</td><td>0.6486486486486487</td><td>Pear</td></tr><tr><td>14</td><td>22.0</td><td>34.0</td><td>F</td><td>0.6470588235294118</td><td>Pear</td></tr><tr><td>15</td><td>26.0</td><td>38.0</td><td>F</td><td>0.6842105263157895</td><td>Pear</td></tr><tr><td>16</td><td>26.0</td><td>37.0</td><td>F</td><td>0.7027027027027027</td><td>Pear</td></tr><tr><td>17</td><td>25.0</td><td>38.0</td><td>F</td><td>0.6578947368421053</td><td>Pear</td></tr><tr><td>18</td><td>26.0</td><td>37.0</td><td>F</td><td>0.7027027027027027</td><td>Pear</td></tr><tr><td>19</td><td>28.0</td><td>40.0</td><td>F</td><td>0.7</td><td>Pear</td></tr><tr><td>20</td><td>23.0</td><td>35.0</td><td>F</td><td>0.6571428571428571</td><td>Pear</td></tr></table>"
+      ],
+      "text/plain": [
+       "<IPython.core.display.HTML object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Goal: pretty print the rows as an HTML table\n",
+    "\n",
+    "# Note: this works, but we can do this much better with pandas\n",
+    "html_table = '<table><tr><th>'\n",
+    "html_table += \"</th><th>\".join(results.dtype.names)\n",
+    "html_table += '</th></tr>'\n",
+    "for row in results:\n",
+    "    html_table += \"<tr><td>\"\n",
+    "    html_table += \"</td><td>\".join(str(v) for v in row)\n",
+    "    html_table += \"</td></tr>\"\n",
+    "html_table += \"</table>\"\n",
+    "\n",
+    "from IPython.display import HTML, display\n",
+    "display(HTML(html_table))\n",
+    "\n",
+    "# Export to \"StatsResults.csv\"\n",
+    "np.savetxt(\"StatsResults.csv\",results,fmt='%s',delimiter=',',header=','.join(results.dtype.names),comments=\"\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
